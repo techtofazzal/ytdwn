@@ -9,17 +9,20 @@ async function getLinks() {
   }
 
   try {
-    const api = `https://api.vevioz.com/api/button/mp4/${videoID}`;
+    const api = `/api/info?url=${encodeURIComponent(url)}`;
     const res = await fetch(api);
     const data = await res.json();
 
-    const formats = data.formats.filter(f => f.hasVideo && f.hasAudio && f.mimeType.includes("mp4"));
+    if (data.error) {
+      linksDiv.innerHTML = data.error;
+      return;
+    }
 
     linksDiv.innerHTML = `<h3>${data.title}</h3>`;
-    formats.forEach(format => {
+    data.formats.forEach(format => {
       const a = document.createElement("a");
       a.href = format.url;
-      a.innerText = `Download ${format.qualityLabel}`;
+      a.innerText = `Download ${format.quality}`;
       a.target = "_blank";
       a.download = "";
       linksDiv.appendChild(a);
