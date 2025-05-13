@@ -1,30 +1,31 @@
-function getDownload() {
-  const url = document.getElementById("videoURL").value.trim();
-  const resultBox = document.getElementById("result");
+async function getLinks() {
+  const url = document.getElementById("ytUrl").value;
+  const linksDiv = document.getElementById("links");
+  linksDiv.innerHTML = "Loading...";
+
+  if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
+    linksDiv.innerHTML = "Please enter a valid YouTube URL.";
+    return;
+  }
 
   try {
-    const videoURL = new URL(url);
-    let videoId = "";
+    const api = `https://ytdl-api.fly.dev/info?url=${encodeURIComponent(url)}`;
+    const res = await fetch(api);
+    const data = await res.json();
 
-    if (videoURL.hostname.includes("youtube.com")) {
-      videoId = videoURL.searchParams.get("v");
-    } else if (videoURL.hostname === "youtu.be") {
-      videoId = videoURL.pathname.substring(1);
-    }
+    const formats = data.formats.filter(f => f.hasVideo && f.hasAudio && f.mimeType.includes("mp4"));
 
-    if (!videoId) {
-      resultBox.innerHTML = "<p>Please enter a valid YouTube video URL.</p>";
-      return;
-    }
-
-    const downloadURL = `https://www.y2mate.com/youtube/${videoId}`;
-
-    resultBox.innerHTML = `
-      <p><strong>Download Link:</strong></p>
-      <a href="${downloadURL}" target="_blank">${downloadURL}</a>
-      <p>Click to open Y2Mate and choose your desired quality.</p>
-    `;
+    linksDiv.innerHTML = `<h3>${data.title}</h3>`;
+    formats.forEach(format => {
+      const a = document.createElement("a");
+      a.href = format.url;
+      a.innerText = `Download ${format.qualityLabel}`;
+      a.target = "_blank";
+      a.download = "";
+      linksDiv.appendChild(a);
+    });
   } catch (e) {
-    resultBox.innerHTML = "<p>Please enter a valid YouTube video URL.</p>";
+    linksDiv.innerHTML = "Error fetching video data.";
+    console.error(e);
   }
 }
