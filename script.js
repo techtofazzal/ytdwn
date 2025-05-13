@@ -9,7 +9,7 @@ async function getLinks() {
   }
 
   try {
-    const api = `https://ytdl-api.fly.dev/info?url=${encodeURIComponent(url)}`;
+    const api = `https://you-link-api.vercel.app/api/info?url=${encodeURIComponent(url)}`;
     const res = await fetch(api);
     const data = await res.json();
 
